@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.SwerveModuleIds;
 //import swervelib.parser.SwerveParser;
@@ -28,7 +29,9 @@ import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import gg.questnav.questnav.QuestNav;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.Turret;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.Constants;
 
 public class RobotContainer {
@@ -38,8 +41,11 @@ public class RobotContainer {
   private final Vision vision;
 
   private final Drivetrain m_swerve = new Drivetrain();
+  private final Turret m_turret = new Turret();
   
   public final static Joystick m_joystick = new Joystick(0);
+  public final static CommandXboxController m_controller = new CommandXboxController(1);
+
   @AutoLogOutput
   public static double forwardAxis = 0;
   AnalogInput m_analog = new AnalogInput(0);
@@ -96,7 +102,16 @@ public class RobotContainer {
               m_swerve.driveSwerve(-m_joystick.getRawAxis(1) , -m_joystick.getRawAxis(0), -m_joystick.getRawAxis(2), true),
           m_swerve
       )
-  );
+  
+    );
+
+    m_turret.setDefaultCommand(Commands.run(() -> m_turret.updateFromDashboard(), m_turret));
+       // m_turret.setDefaultCommand(Commands.run(() -> m_turret.stop(), m_turret));
+    
+    m_controller.a().whileTrue(Commands.run(() -> m_turret.testClockwise(), m_turret));
+    
+    m_controller.b().whileTrue(Commands.run(() -> m_turret.testCounterClockwise(), m_turret));
+
  
   }
 

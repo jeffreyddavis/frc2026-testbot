@@ -66,6 +66,12 @@ public final class Constants
   public static final class Turret {
     public static final int Motor = 20;
     public static final int Encoder = 21;
+    public static final double TestSpeed = .1;
+    public static final double EncoderOffset = 0;
+    public static final double FORBIDDEN_LIMIT_DEG = 180.0;
+    public static final double FORBIDDEN_BUFFER_DEG = 5.0; // safety margin    
+    public static final double GEAR_RATIO = 45.0; // example
+
   }
 
   public static final int GyroId = 14;
