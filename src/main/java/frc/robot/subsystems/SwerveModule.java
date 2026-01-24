@@ -26,7 +26,8 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 public class SwerveModule {
 
   //.0508 meters = 2 inches.
-  //private static final double kWheelRadius = 0.0508;
+  //private static final double kWheelRadius = 0.0508;\
+  private static final double kDriveGearRatio = 6.75; // motor rotations per wheel rotation
   private static final double kWheelCircumference = 0.3191858136; // based on wheel radius above.
   private static final double kWheelInchesCircumference = 12.5663706144;
   private static final double rpmToMetersPerSecondOld = 0.005319763560078716; // based on wheel radius above AKA, circumference / 60 to go from minutes to seconds.
@@ -129,17 +130,16 @@ public class SwerveModule {
    */
   @AutoLogOutput
   public double DrivenDistance() {
-
-if (isDebug) Logger.recordOutput("drive encoder", m_driveEncoder.getPosition());
-
-    return -((m_driveEncoder.getPosition() * kWheelCircumference) / (6.75 / kNEOEncoderResolution));
-    
-
-    //
+    // SparkMax RelativeEncoder position is motor rotations
+    double motorRotations = m_driveEncoder.getPosition();
+    double wheelRotations = motorRotations / kDriveGearRatio;
+    return (isInvertedDrive ? -1.0 : 1.0) * (wheelRotations * kWheelCircumference);
   }
 
   public double InchesDistance() {
-    return -((m_driveEncoder.getPosition() * kWheelInchesCircumference) * (6.75 / kNEOEncoderResolution));
+    double motorRotations = m_driveEncoder.getPosition();
+    double wheelRotations = motorRotations / kDriveGearRatio;
+    return (isInvertedDrive ? -1.0 : 1.0) * (wheelRotations * 12.5663706144);
   }
 
  /**
@@ -148,9 +148,11 @@ if (isDebug) Logger.recordOutput("drive encoder", m_driveEncoder.getPosition());
    * @return The speed in meters per second.
    */
   private double speedInMetersPerSecond() {
-    return m_driveEncoder.getVelocity() * rpmToMetersPerSecond;
-    
-  } 
+    // SparkMax encoder velocity is motor RPM
+    double motorRPM = m_driveEncoder.getVelocity();
+    double wheelRPS = (motorRPM / 60.0) / kDriveGearRatio;
+    return wheelRPS * kWheelCircumference;
+  }
 
   /**
    * Returns the current state of the module.
@@ -219,7 +221,7 @@ if (isDebug) {
   Logger.recordOutput("turn output", turnOutput);
   }
 
-    double outputPower = -(state.speedMetersPerSecond*12)/5.2;
+    double outputPower = (state.speedMetersPerSecond*12)/5.2;
     if (isInvertedDrive) outputPower *= -1;
 
     m_driveMotor.setVoltage(outputPower);

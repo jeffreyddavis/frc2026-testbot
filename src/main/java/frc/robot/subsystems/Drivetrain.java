@@ -39,6 +39,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
+import gg.questnav.questnav.QuestNav;
+
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.math.Matrix;
@@ -64,23 +66,25 @@ public class Drivetrain extends SubsystemBase {
   private final SwerveModule m_frontLeft = new SwerveModule(
     Constants.SwerveModuleIds.FrontLeftDrive,
     Constants.SwerveModuleIds.FrontLeftTurn,
-    Constants.SwerveModuleIds.FrontLeftEncoder, true);
+    Constants.SwerveModuleIds.FrontLeftEncoder, false);
 
   private final SwerveModule m_frontRight = new SwerveModule(
     Constants.SwerveModuleIds.FrontRightDrive,
     Constants.SwerveModuleIds.FrontRightTurn,
-    Constants.SwerveModuleIds.FrontRightEncoder, false);
+    Constants.SwerveModuleIds.FrontRightEncoder, true);
     
+public final QuestNav questNav = new QuestNav();
+
   private final SwerveModule m_backLeft =  new SwerveModule(
     Constants.SwerveModuleIds.BackLeftDrive,
     Constants.SwerveModuleIds.BackLeftTurn,
-    Constants.SwerveModuleIds.BackLeftEncoder, true);
+    Constants.SwerveModuleIds.BackLeftEncoder, false);
   
   
   private final SwerveModule  m_backRight = new SwerveModule(
     Constants.SwerveModuleIds.BackRightDrive,
     Constants.SwerveModuleIds.BackRightTurn,
-    Constants.SwerveModuleIds.BackRightEncoder, false);
+    Constants.SwerveModuleIds.BackRightEncoder, true);
 
   private Pigeon2 pigeon = new Pigeon2(Constants.GyroId);
   
@@ -114,6 +118,7 @@ public class Drivetrain extends SubsystemBase {
   @Override
   public void periodic() {
         updateOdometry();
+    questNav.commandPeriodic();
     
   }
 
@@ -208,6 +213,24 @@ public class Drivetrain extends SubsystemBase {
     m_backRight.setDesiredState(swerveModuleStates[3]);
   }
 
+  public void driveRobotRelative(ChassisSpeeds chassisSpeeds) {
+    drive(
+        chassisSpeeds.vxMetersPerSecond,
+        chassisSpeeds.vyMetersPerSecond,
+        chassisSpeeds.omegaRadiansPerSecond,
+        false
+    );
+  }
+
+  public void driveFieldRelative(ChassisSpeeds fieldSpeeds) {
+    drive(
+        fieldSpeeds.vxMetersPerSecond,
+        fieldSpeeds.vyMetersPerSecond,
+        fieldSpeeds.omegaRadiansPerSecond,
+        true
+    );
+  }
+
   public void resetGyro() {
     pigeon.reset();
   }
@@ -228,6 +251,18 @@ public class Drivetrain extends SubsystemBase {
   /** Updates the field relative position of the robot. */
   public void updateOdometry() {
     
+
+var fl = m_frontLeft.getPosition();
+var fr = m_frontRight.getPosition();
+var bl = m_backLeft.getPosition();
+var br = m_backRight.getPosition();
+
+Logger.recordOutput("SwervePos/FL_m", fl.distanceMeters);
+Logger.recordOutput("SwervePos/FR_m", fr.distanceMeters);
+Logger.recordOutput("SwervePos/BL_m", bl.distanceMeters);
+Logger.recordOutput("SwervePos/BR_m", br.distanceMeters);
+Logger.recordOutput("Pose", m_PoseEstimator.getEstimatedPosition().toString());
+
     m_PoseEstimator.update(
         pigeon.getRotation2d(),
         new SwerveModulePosition[] {
@@ -239,7 +274,7 @@ public class Drivetrain extends SubsystemBase {
          
   }
 @AutoLogOutput
-  Pose2d getPose() {
+  public Pose2d getPose() {
     return m_PoseEstimator.getEstimatedPosition();
   }
 
@@ -264,11 +299,6 @@ public class Drivetrain extends SubsystemBase {
       m_backLeft.getState(),
       m_backRight.getState()
     });
-  }
-
-  void driveRobotRelative(ChassisSpeeds chassisSpeeds) {
-
-    drive(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond, chassisSpeeds.omegaRadiansPerSecond, false);
   }
 
 

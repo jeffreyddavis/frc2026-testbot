@@ -83,6 +83,7 @@
    public void periodic() {
      if (!isAllowedToSend) return;
 
+
      for (int i = 0; i < io.length; i++) {
        io[i].updateInputs(inputs[i]);
        Logger.processInputs("Vision/Camera" + Integer.toString(i), inputs[i]);
