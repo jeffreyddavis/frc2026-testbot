@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 
@@ -34,7 +35,7 @@ public class Turret extends SubsystemBase {
 
 
     // Cached control object (avoids garbage)
-    private final DutyCycleOut dutyCycle = new DutyCycleOut(0);
+    private final VoltageOut voltageOut = new VoltageOut(0);
 
     public Turret() {
         configureMotor();
@@ -92,10 +93,11 @@ public class Turret extends SubsystemBase {
     }
 
     private void setPercentOutput(double percent) {
-        dutyCycle.Output = percent;
-        m_motor.setControl(dutyCycle);
+        voltageOut.Output = 12 * percent;
+        m_motor.setControl(voltageOut);
     }
-
+    
+    
     /* ===================== ENCODER ===================== */
 
     /** @return turret angle in degrees -180 to 180) */
@@ -177,6 +179,8 @@ public class Turret extends SubsystemBase {
         }
 
 
+        
+
         boolean forbidden = wouldCrossForbidden(current, delta);
         forbiddenStop.set(forbidden ? 1.0 : 0.0);
         // HARD SAFETY CHECK: never cross ±180
@@ -185,12 +189,9 @@ public class Turret extends SubsystemBase {
             return;
         }
 
+        setPercentOutput(-delta/360);
         // Direction only (open-loop test)
-        if (delta < 0) {
-            testClockwise();
-        } else {
-            testCounterClockwise();
-        }
+
     }
 
 }
