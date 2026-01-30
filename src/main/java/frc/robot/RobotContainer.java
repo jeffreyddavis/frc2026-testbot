@@ -27,6 +27,7 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
+import frc.robot.subsystems.Shooter;
 import gg.questnav.questnav.QuestNav;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Turret;
@@ -41,7 +42,8 @@ public class RobotContainer {
   private final Vision vision;
 
   private final Drivetrain m_swerve = new Drivetrain();
-  private final Turret m_turret = new Turret();
+  private final Turret m_turret = new Turret(m_swerve.pigeon, m_swerve);
+  private final Shooter m_shooter = new Shooter();
   
   public final static Joystick m_joystick = new Joystick(0);
   public final static CommandXboxController m_controller = new CommandXboxController(1);
@@ -105,13 +107,17 @@ public class RobotContainer {
   
     );
 
-    m_turret.setDefaultCommand(Commands.run(() -> m_turret.updateFromDashboard(), m_turret));
-       // m_turret.setDefaultCommand(Commands.run(() -> m_turret.stop(), m_turret));
-    
-   // m_controller.a().whileTrue(Commands.run(() -> m_turret.testClockwise(), m_turret));
-    
-   // m_controller.b().whileTrue(Commands.run(() -> m_turret.testCounterClockwise(), m_turret));
+    // Enable this to have turret lock to angle from Advantage scope.
+    //m_turret.setDefaultCommand(Commands.run(() -> m_turret.updateFromDashboard(), m_turret));
 
+    //Enable this to have the turret simply sit still.
+   // m_turret.setDefaultCommand(Commands.run(() -> m_turret.stop(), m_turret));
+    
+    // Enable these to test the turret motor
+    m_controller.a().onTrue(Commands.runOnce(() -> m_shooter.testServoForward(), m_shooter));
+    m_controller.b().onTrue(Commands.runOnce(() -> m_shooter.testServoBackward(), m_shooter));
+
+    m_controller.x().onTrue(Commands.runOnce(() -> m_shooter.testServoMiddle(), m_shooter));
  
   }
 

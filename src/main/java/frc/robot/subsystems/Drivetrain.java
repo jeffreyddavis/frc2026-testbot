@@ -86,7 +86,7 @@ public final QuestNav questNav = new QuestNav();
     Constants.SwerveModuleIds.BackRightTurn,
     Constants.SwerveModuleIds.BackRightEncoder, true);
 
-  private Pigeon2 pigeon = new Pigeon2(Constants.GyroId);
+  public Pigeon2 pigeon = new Pigeon2(Constants.GyroId);
   
   
   private final SwerveDriveKinematics m_kinematics =

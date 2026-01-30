@@ -6,17 +6,23 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
-
+import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
+import frc.robot.FieldConstants;
+import frc.robot.FlipUtil;
+import edu.wpi.first.math.geometry.Translation2d;
 
 public class Turret extends SubsystemBase {
 
     private final TalonFX m_motor = new TalonFX(Constants.Turret.Motor);
     private final CANcoder m_encoder = new CANcoder(Constants.Turret.Encoder);
-
+    private Pigeon2 m_gyro;
+    private Drivetrain m_drivetrain;
     private final LoggedNetworkNumber targetAngleDeg =
         new LoggedNetworkNumber("Turret/TargetAngleDeg", 0.0);
 
@@ -37,9 +43,12 @@ public class Turret extends SubsystemBase {
     // Cached control object (avoids garbage)
     private final VoltageOut voltageOut = new VoltageOut(0);
 
-    public Turret() {
+    public Turret(Pigeon2 gyro, Drivetrain drivetrain) {
+
         configureMotor();
         configureEncoder();
+        m_gyro = gyro;
+        m_drivetrain = drivetrain;
     }
 
     /* ===================== CONFIG ===================== */
@@ -86,14 +95,63 @@ public class Turret extends SubsystemBase {
     public void stop() {
         setPercentOutput(0);
     }
+    
+    
+    public double translateDegreesfromRobot(double targetDegrees){
+        Logger.recordOutput("targetDegrees", targetDegrees);
+        double translated = targetDegrees - m_gyro.getRotation2d().getDegrees();
+        Logger.recordOutput("translated", translated);
+        return translated;
+    }
 
+    public static double getAngleBetween(Translation2d v1, Translation2d v2) {
+        // Calculate the dot product manually: A.x * B.x + A.y * B.y
+        double dotProduct = v1.getX() * v2.getX() + v1.getY() * v2.getY();
+
+        // Calculate the magnitudes (norms)
+        double magnitude1 = v1.getNorm();
+        double magnitude2 = v2.getNorm();
+
+        // Use Math.acos to find the angle in radians
+        // Ensure the denominator is not zero to avoid errors
+        if (magnitude1 == 0 || magnitude2 == 0) {
+            return 0.0; // Or throw an exception, depending on desired behavior
+        }
+        
+        double cosAngle = dotProduct / (magnitude1 * magnitude2);
+        // Clamp the value to the range [-1, 1] to avoid issues with floating point inaccuracies
+        cosAngle = Math.max(-1.0, Math.min(1.0, cosAngle));
+        
+        double radians = Math.acos(cosAngle); // Returns angle in radians
+        return - ( radians * (180/ Math.PI));
+    }
+
+    public void pointatHub() {
+        Translation2d Hub = FlipUtil.apply(FieldConstants.Hub.innerCenterPoint.toTranslation2d());
+
+        Logger.recordOutput("pointatHub/Hub Location", Hub);
+        Translation2d Robot = m_drivetrain.getPose().getTranslation();
+
+        Logger.recordOutput("pointatHub/Robot Location", Robot);
+
+        double angleBeteen = getAngleBetween(Hub, Robot);
+        Logger.recordOutput("pointatHub/Angle between", angleBeteen);
+
+        double targetDegrees = translateDegreesfromRobot(angleBeteen);
+                Logger.recordOutput("pointatHub/Hub Degrees", targetDegrees);
+                
+        //goToAngleDegrees(targetDegrees); // enable this to test going to target
+    }
     public void updateFromDashboard() {
         double target = targetAngleDeg.get();
+        target = translateDegreesfromRobot(target);
         goToAngleDegrees(target);
     }
 
     private void setPercentOutput(double percent) {
-        voltageOut.Output = 12 * percent;
+        double IntendedOutput = percent * 3;
+        if (Math.abs(IntendedOutput) > .3) IntendedOutput = .3 * Math.signum(IntendedOutput);
+        voltageOut.Output = (12 * percent);
         m_motor.setControl(voltageOut);
     }
     
@@ -161,6 +219,7 @@ public class Turret extends SubsystemBase {
     public void periodic() {
         double current = getTurretAngleDegrees();
         currentAngleDeg.set(current);
+        pointatHub();
     }
 
 
