@@ -10,6 +10,9 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import frc.robot.addons.FuelSim;
+import frc.robot.subsystems.vision.LimelightHelpers;
+import frc.robot.subsystems.vision.VisionIOLimelight;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import org.littletonrobotics.junction.Logger;
@@ -45,13 +48,21 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    LimelightHelpers.setPipelineIndex("limelight-right", 1);
+    LimelightHelpers.setPipelineIndex("limelight-left", 1);
+    LimelightHelpers.setPipelineIndex("limelight-turret", 1);
+  }
 
   @Override
   public void disabledPeriodic() {}
 
   @Override
-  public void disabledExit() {}
+  public void disabledExit() {
+    LimelightHelpers.setPipelineIndex("limelight-right", 0);
+    LimelightHelpers.setPipelineIndex("limelight-left", 0);
+    LimelightHelpers.setPipelineIndex("limelight-turret", 0);
+  }
 
   @Override
   public void autonomousInit() {
@@ -93,4 +104,9 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void testExit() {}
+
+  @Override
+  public void simulationPeriodic() {
+    FuelSim.getInstance().updateSim();
+}
 }

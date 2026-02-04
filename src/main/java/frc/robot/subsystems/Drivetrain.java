@@ -89,7 +89,7 @@ public final QuestNav questNav = new QuestNav();
   public Pigeon2 pigeon = new Pigeon2(Constants.GyroId);
   
   
-  private final SwerveDriveKinematics m_kinematics =
+  public final SwerveDriveKinematics m_kinematics =
       new SwerveDriveKinematics(
           m_frontLeftLocation, m_frontRightLocation, m_backLeftLocation, m_backRightLocation);
 /*
@@ -112,7 +112,7 @@ public final QuestNav questNav = new QuestNav();
             m_frontRight.getPosition(),
             m_backLeft.getPosition(),
             m_backRight.getPosition()
-          }, new Pose2d(1.35, 5.55, new Rotation2d(0))); // right in front of speaker if auto doesn't set.
+          }, new Pose2d(0, 0, pigeon.getRotation2d())); // right in front of speaker if auto doesn't set.
 
 
   @Override
@@ -128,6 +128,11 @@ public final QuestNav questNav = new QuestNav();
   }
   public void spinNormal() {
     Drivetrain.kMaxAngularSpeed = Drivetrain.kMaxAngularSpeedSet;
+  }
+
+  @AutoLogOutput
+  public double getDegrees() {
+    return pigeon.getRotation2d().getDegrees();
   }
 
   public void outputTelemetry() {
@@ -244,6 +249,7 @@ public final QuestNav questNav = new QuestNav();
     m_backRight.setDesiredState(startingState);
   } */
 
+  @AutoLogOutput
   public Rotation2d getHeading() {
     return pigeon.getRotation2d();
   }

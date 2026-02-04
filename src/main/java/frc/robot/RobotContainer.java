@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.SwerveModuleIds;
+import frc.robot.addons.FuelSim;
 //import swervelib.parser.SwerveParser;
 //import swervelib.SwerveDrive;
 //import swervelib.SwerveInputStream;
@@ -78,8 +79,36 @@ public class RobotContainer {
 
  */
   public RobotContainer() {
+    FuelSim.getInstance(); // gets singleton instance of FuelSim
+    FuelSim.getInstance().spawnStartingFuel(); // spawns fuel in the depots and neutral zone
+    
+    // Register a robot for collision with fuel
+      FuelSim.getInstance().registerRobot(
+            100.0, // from left to right
+            100.0, // from front to back
+            5.0, // from floor to top of bumpers
+            () -> m_swerve.m_PoseEstimator.getEstimatedPosition(), // Supplier<Pose2d> of robot pose
+            () -> m_swerve.m_kinematics.toChassisSpeeds()); // Supplier<ChassisSpeeds> of field-centric chassis speeds
+    
+      // Register an intake to remove fuel from the field as a rectangular bounding box
+      FuelSim.getInstance().registerIntake(
+            0, 100, 0, 10); // (optional) Runnable called whenever a fuel is intaked
+    
+      FuelSim.getInstance().setSubticks( 5); // sets the number of physics iterations to perform per 20ms loop. Default = 5
+    
+      FuelSim.getInstance().start(); // enables the simulation to run (updateSim must still be called periodically)
+      FuelSim.getInstance().stop(); // stops the simulation running (updateSim will do nothing until start is called again)
+
+
     configureBindings();
-    m_swerve.resetGyro();
+
+    //FuelSim.getInstance().stepSim(); // steps the simulation forward by 20ms, regardless of start/stop state
+    //FuelSim.getInstance().spawnFuel(Translation3d pos, Translation3d vel); // spawns a fuel with a given position and velocity (both field centric, represented as vectors by Translation3d)
+    //FuelSim.getInstance().launchFuel(LinearVelocity launchVelocity, Angle hoodAngle, Angle turretYaw, Distance launchHeight); // Spawns a fuel onto the field at the robot's position with a specified launch velocity and angles, accounting for robot movement (robot must be registered)
+    //FuelSim.getInstance().clearFuel(); // clears all fuel from the field
+
+    FuelSim.Hub.BLUE_HUB.getScore(); // get number of fuel scored in blue hub
+    //m_swerve.resetGyro();
  vision =
     new Vision(
         m_swerve::addVisionMeasurement,
@@ -124,4 +153,6 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     return Commands.print("No autonomous command configured");
   }
+
+
 }

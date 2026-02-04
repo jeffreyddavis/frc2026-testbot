@@ -15,6 +15,7 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 import frc.robot.FieldConstants;
 import frc.robot.FlipUtil;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
 public class Turret extends SubsystemBase {
@@ -98,13 +99,30 @@ public class Turret extends SubsystemBase {
     
     
     public double translateDegreesfromRobot(double targetDegrees){
-        Logger.recordOutput("targetDegrees", targetDegrees);
-        double translated = targetDegrees - m_gyro.getRotation2d().getDegrees();
-        Logger.recordOutput("translated", translated);
+        Logger.recordOutput("translate/targetDegrees", targetDegrees);
+        double drivetrainDegrees = m_drivetrain.getPose().getRotation().getDegrees();
+        Logger.recordOutput("translate/driveTrain Degrees", drivetrainDegrees);
+        double translated = targetDegrees - drivetrainDegrees;
+        Logger.recordOutput("translate/translated", translated);
         return translated;
     }
 
     public static double getAngleBetween(Translation2d v1, Translation2d v2) {
+        Translation2d difference = v2.minus(v1);
+
+        // Get the angle of the difference vector using its components
+        // atan2 in Java takes y first, then x
+        double angleRadians = Math.atan2(difference.getY(), difference.getX());
+
+        // You can also use the getAngle() method provided by Translation2d
+        Rotation2d angleRotation2d = difference.getAngle();
+        angleRadians = angleRotation2d.getRadians();
+
+        // To get degrees:
+        double angleDegrees = Math.toDegrees(angleRadians);
+        return angleDegrees;
+
+        /* 
         // Calculate the dot product manually: A.x * B.x + A.y * B.y
         double dotProduct = v1.getX() * v2.getX() + v1.getY() * v2.getY();
 
@@ -123,7 +141,10 @@ public class Turret extends SubsystemBase {
         cosAngle = Math.max(-1.0, Math.min(1.0, cosAngle));
         
         double radians = Math.acos(cosAngle); // Returns angle in radians
+        radians += Math.PI; // convert conventions 
+
         return - ( radians * (180/ Math.PI));
+        */
     }
 
     public void pointatHub() {
@@ -134,13 +155,13 @@ public class Turret extends SubsystemBase {
 
         Logger.recordOutput("pointatHub/Robot Location", Robot);
 
-        double angleBeteen = getAngleBetween(Hub, Robot);
+        double angleBeteen = getAngleBetween(Robot,Hub );
         Logger.recordOutput("pointatHub/Angle between", angleBeteen);
 
         double targetDegrees = translateDegreesfromRobot(angleBeteen);
                 Logger.recordOutput("pointatHub/Hub Degrees", targetDegrees);
                 
-        //goToAngleDegrees(targetDegrees); // enable this to test going to target
+        goToAngleDegrees(targetDegrees); // enable this to test going to target
     }
     public void updateFromDashboard() {
         double target = targetAngleDeg.get();
@@ -248,7 +269,7 @@ public class Turret extends SubsystemBase {
             return;
         }
 
-        setPercentOutput(-delta/360);
+        setPercentOutput((-delta*2)/360);
         // Direction only (open-loop test)
 
     }
