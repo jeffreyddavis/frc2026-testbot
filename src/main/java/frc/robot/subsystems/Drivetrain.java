@@ -251,7 +251,7 @@ public final QuestNav questNav = new QuestNav();
 
   @AutoLogOutput
   public Rotation2d getHeading() {
-    return pigeon.getRotation2d();
+    return m_PoseEstimator.getEstimatedPosition().getRotation();
   }
 
   /** Updates the field relative position of the robot. */
@@ -305,6 +305,15 @@ Logger.recordOutput("Pose", m_PoseEstimator.getEstimatedPosition().toString());
       m_backLeft.getState(),
       m_backRight.getState()
     });
+  }
+
+  public ChassisSpeeds getFieldRelativeChassisSpeeds() {
+    ChassisSpeeds fieldRelative =
+    ChassisSpeeds.fromRobotRelativeSpeeds(
+      getRobotRelativeSpeeds(),
+      m_PoseEstimator.getEstimatedPosition().getRotation()
+    );
+    return fieldRelative;
   }
 
 

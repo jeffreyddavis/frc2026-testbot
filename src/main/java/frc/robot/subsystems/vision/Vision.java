@@ -121,7 +121,12 @@
          boolean rejectPose =
              observation.tagCount() == 0 // Must have at least one tag
                  || (observation.tagCount() == 1
-                     && observation.ambiguity() > maxAmbiguity) // Cannot be high ambiguity
+                     && 
+                     (
+                      observation.ambiguity() > maxAmbiguity // Cannot be high ambiguity
+                      || observation.averageTagDistance() > 3 // cannot be too far away with 1 tag
+                     ) 
+                     ) 
                  || Math.abs(observation.pose().getZ())
                      > maxZError // Must have realistic Z coordinate
 
@@ -130,7 +135,7 @@
                  || observation.pose().getX() > aprilTagLayout.getFieldLength()
                  || observation.pose().getY() < 0.0
                  || observation.pose().getY() > aprilTagLayout.getFieldWidth()
-                 || observation.averageTagDistance() < .7
+                 || observation.averageTagDistance() < .5 // 
              ;
 
          // Add pose to log

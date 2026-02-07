@@ -155,13 +155,13 @@ public class Turret extends SubsystemBase {
 
         Logger.recordOutput("pointatHub/Robot Location", Robot);
 
-        double angleBeteen = getAngleBetween(Robot,Hub );
+        double angleBeteen = getAngleBetween(Robot,Hub);
         Logger.recordOutput("pointatHub/Angle between", angleBeteen);
 
         double targetDegrees = translateDegreesfromRobot(angleBeteen);
                 Logger.recordOutput("pointatHub/Hub Degrees", targetDegrees);
                 
-        goToAngleDegrees(targetDegrees); // enable this to test going to target
+        //goToAngleDegrees(targetDegrees); // enable this to test going to target
     }
     public void updateFromDashboard() {
         double target = targetAngleDeg.get();
@@ -169,6 +169,11 @@ public class Turret extends SubsystemBase {
         goToAngleDegrees(target);
     }
 
+    public void setFieldTargetAngle(double angle) {
+        double target = translateDegreesfromRobot(angle);
+        goToAngleDegrees(target);
+    } 
+    
     private void setPercentOutput(double percent) {
         double IntendedOutput = percent * 3;
         if (Math.abs(IntendedOutput) > .3) IntendedOutput = .3 * Math.signum(IntendedOutput);
@@ -238,9 +243,9 @@ public class Turret extends SubsystemBase {
     }
 
     public void periodic() {
-        double current = getTurretAngleDegrees();
-        currentAngleDeg.set(current);
-        pointatHub();
+        //double current = getTurretAngleDegrees();
+        //currentAngleDeg.set(current);
+        //pointatHub();
     }
 
 

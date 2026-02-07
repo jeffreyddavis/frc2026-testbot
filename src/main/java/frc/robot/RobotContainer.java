@@ -11,6 +11,8 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.revrobotics.spark.SparkMax;
 
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -28,10 +30,11 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
-import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Hood;
 import gg.questnav.questnav.QuestNav;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Turret;
+import frc.robot.subsystems.Shooter;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.Constants;
@@ -42,12 +45,14 @@ public class RobotContainer {
   
   private final Vision vision;
 
-  private final Drivetrain m_swerve = new Drivetrain();
+  public Drivetrain m_swerve = new Drivetrain();
   private final Turret m_turret = new Turret(m_swerve.pigeon, m_swerve);
-  private final Shooter m_shooter = new Shooter();
+  private final Hood m_hood = new Hood();
+  private final Shooter m_shooter = new Shooter(m_hood, m_turret);
   
   public final static Joystick m_joystick = new Joystick(0);
   public final static CommandXboxController m_controller = new CommandXboxController(1);
+  Translation2d Hub = FlipUtil.apply(FieldConstants.Hub.innerCenterPoint.toTranslation2d());
 
   @AutoLogOutput
   public static double forwardAxis = 0;
@@ -122,6 +127,8 @@ public class RobotContainer {
     //m_joystick.button(0, new InstantCommand());
   }
 
+
+
   private void configureBindings() {
     //Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
 
@@ -136,6 +143,22 @@ public class RobotContainer {
   
     );
 
+    m_shooter.setDefaultCommand(
+      Commands.run(
+    () -> {
+        Translation2d pos =
+            m_swerve.m_PoseEstimator.getEstimatedPosition().getTranslation();
+
+        ChassisSpeeds speeds = m_swerve.getFieldRelativeChassisSpeeds();
+
+        Translation2d velocity =
+            new Translation2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond);
+
+        m_shooter.target(pos, velocity, Hub, 0.15);
+    },
+    m_shooter
+));
+
     // Enable this to have turret lock to angle from Advantage scope.
     //m_turret.setDefaultCommand(Commands.run(() -> m_turret.updateFromDashboard(), m_turret));
 
@@ -143,10 +166,10 @@ public class RobotContainer {
    // m_turret.setDefaultCommand(Commands.run(() -> m_turret.stop(), m_turret));
     
     // Enable these to test the turret motor
-    m_controller.a().onTrue(Commands.runOnce(() -> m_shooter.testServoForward(), m_shooter));
-    m_controller.b().onTrue(Commands.runOnce(() -> m_shooter.testServoBackward(), m_shooter));
+    m_controller.a().onTrue(Commands.runOnce(() -> m_hood.testServoForward(), m_hood));
+    m_controller.b().onTrue(Commands.runOnce(() -> m_hood.testServoBackward(), m_hood));
 
-    m_controller.x().onTrue(Commands.runOnce(() -> m_shooter.testServoMiddle(), m_shooter));
+    m_controller.x().onTrue(Commands.runOnce(() -> m_hood.testServoMiddle(), m_hood));
  
   }
 

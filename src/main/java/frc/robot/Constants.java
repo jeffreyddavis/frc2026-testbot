@@ -86,5 +86,12 @@ public final class Constants
 
     public static final double poseLockTime = .1;
   }
+
+  public static final class Hood {
+    public static final double MIN_HOOD_DEG = 0;
+    public static final double MAX_HOOD_DEG = 90;
+    public static final double MIN_MEANINGFUL_DISTANCE = 0;
+    public static final double MAX_MEANINGFUL_DISTANCE = 50;
+  }
 }
 
