@@ -13,7 +13,6 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
 
-import frc.robot.addons.FuelSim;
 import frc.robot.subsystems.vision.LimelightHelpers;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -154,7 +153,12 @@ public class Robot extends LoggedRobot {
   public void testExit() {}
 
   @Override
+  public void simulationInit() {
+
+  }
+
+  @Override
   public void simulationPeriodic() {
-    FuelSim.getInstance().updateSim();
+    m_robotContainer.fuelSim.updateSim();
 }
 }
