@@ -30,7 +30,8 @@ import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.Hood;
-import gg.questnav.questnav.QuestNav;
+import frc.robot.subsystems.QuestNaviman;
+import frc.robot.subsystems.RobotHealth;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Turret;
 import frc.robot.subsystems.Shooter;
@@ -43,12 +44,14 @@ public class RobotContainer {
 
 
   
-  private final Vision vision;
+  private final Vision m_vision;
 
   public Drivetrain m_swerve = new Drivetrain();
   private final Turret m_turret = new Turret(m_swerve.pigeon, m_swerve);
   private final Hood m_hood = new Hood();
   private final Shooter m_shooter = new Shooter(m_hood, m_turret);
+  public final QuestNaviman m_QuestNaviman = new QuestNaviman(m_swerve);
+  private final RobotHealth m_RobotHealth;;
   
   public final static Joystick m_joystick = new Joystick(0);
   public final static CommandXboxController m_controller = new CommandXboxController(1);
@@ -110,16 +113,16 @@ private void configureFuelSimRobot(BooleanSupplier ableToIntake, Runnable intake
 
   public RobotContainer() {
 
-fuelSim.spawnStartingFuel(); // spawns fuel in the depots and neutral zone
 
-
- vision =
+    m_vision =
     new Vision(
         m_swerve::addVisionMeasurement,
        
         new VisionIOLimelight(VisionConstants.camera0Name, m_swerve::getHeading),
         new VisionIOLimelight(VisionConstants.camera1Name, m_swerve::getHeading)
          );
+
+         m_RobotHealth = new RobotHealth(m_swerve, m_QuestNaviman, m_vision);
 
   }
 
