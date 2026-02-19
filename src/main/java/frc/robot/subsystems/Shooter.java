@@ -110,7 +110,7 @@ public class Shooter extends SubsystemBase {
             m_goalPosition = goalPosition;
             // 1. Project future position
             Translation2d futurePos = robotPosition.plus(
-                robotVelocity.times(latencyCompensation*100) // extreme for testing
+                robotVelocity.times(latencyCompensation) 
             );
 
             // 2. Get target vector
