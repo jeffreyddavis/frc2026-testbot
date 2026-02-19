@@ -6,6 +6,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.FieldConstants;
+import frc.robot.FlipUtil;
 import frc.robot.subsystems.vision.Vision;
 
 
@@ -24,6 +26,18 @@ public class RobotHealth extends SubsystemBase  {
     @AutoLogOutput
     public boolean fieldOptimal = false;
 
+    @AutoLogOutput
+    public boolean inAllianceZone = true; // start on your side of the field.
+    @AutoLogOutput
+    public boolean inNeutralZone = false;
+    @AutoLogOutput
+    public boolean inOpponentZone = false;
+    @AutoLogOutput
+    public boolean inTrenchZones = false;
+
+    @AutoLogOutput
+    public boolean hoodDangerNearTrench = false;
+
     private Drivetrain m_Drivetrain;
     private QuestNaviman m_QuestNaviman;
     private Vision m_Vision;
@@ -39,6 +53,8 @@ public class RobotHealth extends SubsystemBase  {
     private double statusStableUntil = 0.0;
 
     private static final double FIELD_STATUS_DEBOUNCE = 0.4; // seconds
+
+
 
     @AutoLogOutput
     public String fieldStatusText;
@@ -65,6 +81,24 @@ public class RobotHealth extends SubsystemBase  {
         determineFieldState();
 
         lastPose2d = newPose2d; // prep for next periodic;
+    }
+
+    public void updateZones() {
+        Pose2d pose = m_Drivetrain.getPose();
+        double poseX = FlipUtil.applyX(pose.getX());
+
+        double myZone = FlipUtil.applyX(FieldConstants.LinesVertical.allianceZone);
+        double neutralZoneNear = FlipUtil.applyX(FieldConstants.LinesVertical.neutralZoneNear);
+        double neutralZoneFar = FlipUtil.applyX(FieldConstants.LinesVertical.neutralZoneNear);
+        double oppZone = FlipUtil.applyX(FieldConstants.LinesVertical.oppAllianceZone);
+
+        inAllianceZone = (poseX < myZone);
+        inNeutralZone = (poseX > neutralZoneNear && poseX <= neutralZoneFar);
+        inTrenchZones = (poseX >= myZone && poseX <= neutralZoneNear ) 
+            || (poseX < oppZone && poseX > neutralZoneFar ) ;
+        inOpponentZone = (poseX > oppZone);
+
+        // ADD HOODDANGER NEAR TRENCH
     }
 
     public void determineFieldState() {
