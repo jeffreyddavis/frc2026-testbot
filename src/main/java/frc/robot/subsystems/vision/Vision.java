@@ -47,6 +47,8 @@
    @AutoLogOutput
    private boolean bolFoundGood = false;
 
+   @AutoLogOutput
+   public int camerasWithPoseCount = 0;
 
    @AutoLogOutput
    private double lastGoodDistance = 0.0;
@@ -83,7 +85,7 @@
    public void periodic() {
      if (!isAllowedToSend) return;
 
-
+     int camerasWithPoseTemp = 0;
      for (int i = 0; i < io.length; i++) {
        io[i].updateInputs(inputs[i]);
        Logger.processInputs("Vision/Camera" + Integer.toString(i), inputs[i]);
@@ -194,6 +196,9 @@
        allRobotPoses.addAll(robotPoses);
        allRobotPosesAccepted.addAll(robotPosesAccepted);
        allRobotPosesRejected.addAll(robotPosesRejected);
+
+       if (robotPosesAccepted.size() > 0) camerasWithPoseTemp++;
+
      }
 
      if (allRobotPosesAccepted.isEmpty() || !bolFoundGood) {
@@ -202,7 +207,7 @@
        noGoodPosesCount = 0;
      }
     
-
+     camerasWithPoseCount = camerasWithPoseTemp; // update class variable with total. 
     
 
      // Log summary data

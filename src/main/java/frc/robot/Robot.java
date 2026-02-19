@@ -13,7 +13,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
 
-import frc.robot.addons.FuelSim;
+import frc.robot.subsystems.QuestNaviman.PositionStatus;
 import frc.robot.subsystems.vision.LimelightHelpers;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -66,6 +66,7 @@ public class Robot extends LoggedRobot {
     LimelightHelpers.setPipelineIndex("limelight-right", 1);
     LimelightHelpers.setPipelineIndex("limelight-left", 1);
     LimelightHelpers.setPipelineIndex("limelight-turret", 1);
+    m_robotContainer.m_QuestNaviman.currentPositionStatus = PositionStatus.RECEIVING_FROM_ROBOT; 
   }
 
   @Override
@@ -101,12 +102,12 @@ public class Robot extends LoggedRobot {
     LimelightHelpers.setPipelineIndex("limelight-left", 0);
     LimelightHelpers.setPipelineIndex("limelight-turret", 0);
 
-    //m_robotContainer.m_swerve.pigeon.setYaw(m_robotContainer.m_swerve.m_PoseEstimator.getEstimatedPosition().getRotation().getDegrees());
-
 
     LimelightHelpers.SetIMUMode("limelight-right", 0); // Use internal IMU + external IMU
     LimelightHelpers.SetIMUMode("limelight-left", 0); // Use internal IMU + external IMU
     LimelightHelpers.SetIMUMode("limelight-turret", 0); // Use internal IMU + external IMU
+
+    m_robotContainer.m_QuestNaviman.currentPositionStatus = PositionStatus.SENDING_TO_ROBOT; 
   }
 
   @Override
@@ -154,7 +155,12 @@ public class Robot extends LoggedRobot {
   public void testExit() {}
 
   @Override
+  public void simulationInit() {
+
+  }
+
+  @Override
   public void simulationPeriodic() {
-    FuelSim.getInstance().updateSim();
+    m_robotContainer.fuelSim.updateSim();
 }
 }
