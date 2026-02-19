@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import javax.xml.crypto.dsig.TransformService;
+
 import org.littletonrobotics.junction.AutoLogOutput;
 
 import edu.wpi.first.math.MathUtil;
@@ -89,6 +91,12 @@ public class Shooter extends SubsystemBase {
     }
     
 
+    @AutoLogOutput
+    Translation2d m_robotPosition;
+    @AutoLogOutput
+    Translation2d m_robotVelocity;
+    @AutoLogOutput
+    Translation2d m_goalPosition;
 
     public void target(
             Translation2d robotPosition,
@@ -96,9 +104,13 @@ public class Shooter extends SubsystemBase {
             Translation2d goalPosition,
             double latencyCompensation
         ) {
+
+            m_robotPosition = robotPosition;
+            m_robotVelocity = robotVelocity;
+            m_goalPosition = goalPosition;
             // 1. Project future position
             Translation2d futurePos = robotPosition.plus(
-                robotVelocity.times(latencyCompensation)
+                robotVelocity.times(latencyCompensation*100) // extreme for testing
             );
 
             // 2. Get target vector
