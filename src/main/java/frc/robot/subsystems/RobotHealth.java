@@ -1,6 +1,4 @@
 package frc.robot.subsystems;
-import java.security.PrivateKey;
-import java.util.concurrent.BlockingDeque;
 
 import org.littletonrobotics.junction.AutoLogOutput;
 
@@ -9,6 +7,8 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.vision.Vision;
+
+
 
 public class RobotHealth extends SubsystemBase  {
     @AutoLogOutput
@@ -60,6 +60,7 @@ public class RobotHealth extends SubsystemBase  {
 
         fieldReady = (PoseHealthy && m_Vision.camerasWithPoseCount >= 2);
         fieldOptimal = (PoseHealthy && m_Vision.camerasWithPoseCount >= 3);
+
 
         determineFieldState();
 

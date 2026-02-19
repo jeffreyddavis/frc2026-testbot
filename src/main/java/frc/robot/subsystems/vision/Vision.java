@@ -28,6 +28,7 @@
  import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
  import java.util.LinkedList;
  import java.util.List;
+ import edu.wpi.first.wpilibj.DriverStation;
 
  import org.littletonrobotics.junction.AutoLogOutput;
  import org.littletonrobotics.junction.Logger;
@@ -172,11 +173,13 @@
            angularStdDev *= cameraStdDevFactors[cameraIndex];
          }
 
-         // Send vision observation
-         consumer.accept(
-             observation.pose().toPose2d(),
-             observation.timestamp(),
-             VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
+          if (DriverStation.isDisabled() || camerasWithPoseCount >= 2) { // ignore when only one camera is visible (delayed one loop)
+            // Send vision observation
+            consumer.accept(
+              observation.pose().toPose2d(),
+              observation.timestamp(),
+              VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
+          } 
        }
 
        // Log camera datadata
