@@ -17,6 +17,7 @@ public final class Constants
   public static final double MAX_SPEED  = Units.feetToMeters(14.5);
 
   public static final double YawWarningTolerance = 2;
+  public static final double TrenchDangerDistance = .65;
   // Maximum speed of the robot in meters per second, used to limit acceleration.
 
 //  public static final class AutonConstants

@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import org.littletonrobotics.junction.AutoLogOutput;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -98,7 +99,20 @@ public class RobotHealth extends SubsystemBase  {
             || (poseX < oppZone && poseX > neutralZoneFar ) ;
         inOpponentZone = (poseX > oppZone);
 
-        // ADD HOODDANGER NEAR TRENCH
+        Translation2d trench1 = FlipUtil.apply(FieldConstants.LeftBump.nearLeftCorner);
+        Translation2d trench2 = FlipUtil.apply(FieldConstants.LeftBump.nearRightCorner);
+        Translation2d trench3 = FlipUtil.apply(FieldConstants.LeftBump.nearLeftCorner);
+        Translation2d trench4 = FlipUtil.apply(FieldConstants.LeftBump.nearRightCorner);
+
+        hoodDangerNearTrench = (pose.getTranslation().getDistance(trench1) < Constants.TrenchDangerDistance ||
+            pose.getTranslation().getDistance(trench2) < Constants.TrenchDangerDistance ||
+            pose.getTranslation().getDistance(trench3) < Constants.TrenchDangerDistance ||
+            pose.getTranslation().getDistance(trench4) < Constants.TrenchDangerDistance
+            );
+
+        
+
+
     }
 
     public void determineFieldState() {
