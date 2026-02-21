@@ -60,8 +60,8 @@ public class VisionConstants {
   // (Adjust to trust some cameras more than others)
   public static double[] cameraStdDevFactors =
       new double[] {
-        500, // Camera 0
-        500, // Camera 1,
+        300, // Camera 0
+        300, // Camera 1,
      //   1.0, // Camera 2,
      //   1.0, // Camera 3,
      //   1.2 // Camera 4
