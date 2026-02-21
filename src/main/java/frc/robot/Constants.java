@@ -77,6 +77,11 @@ public final class Constants
 
   }
 
+  public static final class Shooter {
+    public static final int ShooterRight = 35; // negative is shoot
+    public static final int ShooterLeft = 36; // positive is shoot
+  }
+
   public static final int GyroId = 14;
 
   public static final class Driving {

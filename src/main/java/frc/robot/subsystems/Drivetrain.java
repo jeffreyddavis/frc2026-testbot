@@ -38,6 +38,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.FlipUtil;
 import frc.robot.RobotContainer;
 import gg.questnav.questnav.QuestNav;
 
@@ -153,6 +154,11 @@ public final QuestNav questNav = new QuestNav();
 
     Logger.recordOutput("moveY", moveY);
     Logger.recordOutput("moveX", moveX);
+
+    if (fieldRelative && FlipUtil.shouldFlip()) {
+      moveY *= -1;
+      moveX *= -1;
+    }
 
     final var xSpeed =
 

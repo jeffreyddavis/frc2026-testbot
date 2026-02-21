@@ -80,17 +80,35 @@ public class RobotHealth extends SubsystemBase  {
 
 
         determineFieldState();
+        updateZones();
 
         lastPose2d = newPose2d; // prep for next periodic;
     }
 
+
+    private boolean updateWithHysteresis(
+        boolean currentState,
+        boolean enterCondition,
+        boolean exitCondition)
+    {
+        if (currentState) {
+            return !exitCondition;   // stay true unless clearly exited
+        } else {
+            return enterCondition;   // only become true if clearly entered
+        }
+    }
+
+    public static final double ZONE_HYSTERESIS = 0.15;  // meters (~6 in)
+
     public void updateZones() {
+
+        double now = edu.wpi.first.wpilibj.Timer.getFPGATimestamp();
         Pose2d pose = m_Drivetrain.getPose();
         double poseX = FlipUtil.applyX(pose.getX());
 
         double myZone = FlipUtil.applyX(FieldConstants.LinesVertical.allianceZone);
         double neutralZoneNear = FlipUtil.applyX(FieldConstants.LinesVertical.neutralZoneNear);
-        double neutralZoneFar = FlipUtil.applyX(FieldConstants.LinesVertical.neutralZoneNear);
+        double neutralZoneFar = FlipUtil.applyX(FieldConstants.LinesVertical.neutralZoneFar);
         double oppZone = FlipUtil.applyX(FieldConstants.LinesVertical.oppAllianceZone);
 
         inAllianceZone = (poseX < myZone);
@@ -99,19 +117,16 @@ public class RobotHealth extends SubsystemBase  {
             || (poseX < oppZone && poseX > neutralZoneFar ) ;
         inOpponentZone = (poseX > oppZone);
 
-        Translation2d trench1 = FlipUtil.apply(FieldConstants.LeftBump.nearLeftCorner);
-        Translation2d trench2 = FlipUtil.apply(FieldConstants.LeftBump.nearRightCorner);
-        Translation2d trench3 = FlipUtil.apply(FieldConstants.LeftBump.nearLeftCorner);
-        Translation2d trench4 = FlipUtil.apply(FieldConstants.LeftBump.nearRightCorner);
+        Translation2d trench1 = FlipUtil.apply(FieldConstants.LeftTrench.openingTopLeft.toTranslation2d());
+        Translation2d trench2 = FlipUtil.apply(FieldConstants.LeftTrench.openingTopRight.toTranslation2d());
+        Translation2d trench3 = FlipUtil.apply(FieldConstants.RightTrench.openingTopLeft.toTranslation2d());
+        Translation2d trench4 = FlipUtil.apply(FieldConstants.RightTrench.openingTopRight.toTranslation2d());
 
         hoodDangerNearTrench = (pose.getTranslation().getDistance(trench1) < Constants.TrenchDangerDistance ||
             pose.getTranslation().getDistance(trench2) < Constants.TrenchDangerDistance ||
             pose.getTranslation().getDistance(trench3) < Constants.TrenchDangerDistance ||
             pose.getTranslation().getDistance(trench4) < Constants.TrenchDangerDistance
             );
-
-        
-
 
     }
 

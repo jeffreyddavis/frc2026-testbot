@@ -112,7 +112,7 @@ private void configureFuelSimRobot(BooleanSupplier ableToIntake, Runnable intake
 }
 
   public RobotContainer() {
-
+configureBindings();
 
     m_vision =
     new Vision(
@@ -140,6 +140,8 @@ private void configureFuelSimRobot(BooleanSupplier ableToIntake, Runnable intake
     );
 
     // continiously target the hub for testing. 
+
+    /*
     m_shooter.setDefaultCommand(
       Commands.run(
     () -> {
@@ -155,12 +157,17 @@ private void configureFuelSimRobot(BooleanSupplier ableToIntake, Runnable intake
     },
     m_shooter
 ));
+ */
+
+ m_shooter.setDefaultCommand(Commands.run(() -> m_shooter.TestShot(), m_shooter));
 
     // Enable this to have turret lock to angle from Advantage scope.
     //m_turret.setDefaultCommand(Commands.run(() -> m_turret.updateFromDashboard(), m_turret));
 
     //Enable this to have the turret simply sit still.
    // m_turret.setDefaultCommand(Commands.run(() -> m_turret.stop(), m_turret));
+
+
     
     // Enable these to test the turret motor
     m_controller.a().onTrue(Commands.runOnce(() -> m_hood.testServoForward(), m_hood));

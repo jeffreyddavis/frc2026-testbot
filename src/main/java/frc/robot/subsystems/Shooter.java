@@ -3,12 +3,18 @@ package frc.robot.subsystems;
 import javax.xml.crypto.dsig.TransformService;
 
 import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
+
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.interpolation.InverseInterpolator;
+import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.Hood;
 import frc.robot.Constants;
@@ -19,6 +25,10 @@ public class Shooter extends SubsystemBase {
 
     private Hood m_Hood;
     private Turret m_Turret;
+    private final TalonFX m_ShooterLeft = new TalonFX(Constants.Shooter.ShooterLeft);
+    private final TalonFX m_ShooterRight = new TalonFX(Constants.Shooter.ShooterRight);
+    private final VoltageOut voltageOutLeft = new VoltageOut(0);
+    private final VoltageOut voltageOutRight = new VoltageOut(0);
 
     @AutoLogOutput
     private double hoodTarget;
@@ -30,6 +40,22 @@ public class Shooter extends SubsystemBase {
     private double requiredVelocity;
     @AutoLogOutput
     private double rawHoodTOFFromDistance;
+
+
+    private void configureMotor() {
+        TalonFXConfiguration config = new TalonFXConfiguration();
+
+        // For testing: coast is usually nicer
+        config.MotorOutput.NeutralMode = com.ctre.phoenix6.signals.NeutralModeValue.Coast;
+
+        // Optional: current limit to protect things during testing
+        config.CurrentLimits.SupplyCurrentLimit = 25;
+        config.CurrentLimits.SupplyCurrentLimitEnable = true;
+
+        m_ShooterLeft.getConfigurator().apply(config);
+        m_ShooterRight.getConfigurator().apply(config);
+    }
+
 
     public Shooter(Hood hood, Turret turret) {
         m_Hood = hood;
@@ -89,7 +115,19 @@ public class Shooter extends SubsystemBase {
         
         return HOOD_MAP.get(clampedDistance);
     }
+
+    private final LoggedNetworkNumber testShotPercent =
+        new LoggedNetworkNumber("Shooter/testShotPercent", 0.0);
+
+    public void TestShot() {
+        voltageOutLeft.Output = (36 * testShotPercent.get());
+        voltageOutRight.Output = (-36 * testShotPercent.get());
+        m_ShooterLeft.setControl(voltageOutLeft);
+        m_ShooterRight.setControl(voltageOutRight);
+    }
     
+
+
 
     @AutoLogOutput
     Translation2d m_robotPosition;
