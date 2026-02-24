@@ -104,7 +104,6 @@ public class RobotHealth extends SubsystemBase  {
         }
     }
 
-    public static final double ZONE_HYSTERESIS = 0.15;  // meters (~6 in)
 
     public void updateZones() {
 
@@ -117,22 +116,79 @@ public class RobotHealth extends SubsystemBase  {
         double neutralZoneFar = FlipUtil.applyX(FieldConstants.LinesVertical.neutralZoneFar);
         double oppZone = FlipUtil.applyX(FieldConstants.LinesVertical.oppAllianceZone);
 
-        inAllianceZone = (poseX < myZone);
-        inNeutralZone = (poseX > neutralZoneNear && poseX <= neutralZoneFar);
-        inTrenchZones = (poseX >= myZone && poseX <= neutralZoneNear ) 
-            || (poseX < oppZone && poseX > neutralZoneFar ) ;
-        inOpponentZone = (poseX > oppZone);
+        double H = Constants.ZONE_HYSTERESIS;
+
+        // Alliance Zone
+        boolean allianceEnter = poseX < (myZone - H);
+        boolean allianceExit  = poseX > (myZone + H);
+
+        inAllianceZone = updateWithHysteresis(
+            inAllianceZone,
+            allianceEnter,
+            allianceExit
+        );
+        boolean neutralEnter =
+        poseX > (neutralZoneNear + H) &&
+        poseX <= (neutralZoneFar - H);
+
+        boolean neutralExit =
+            poseX <= (neutralZoneNear - H) ||
+            poseX >  (neutralZoneFar + H);
+
+        inNeutralZone = updateWithHysteresis(
+            inNeutralZone,
+            neutralEnter,
+            neutralExit
+        );
+
+        boolean trenchEnter =
+            (poseX >= (myZone + H) && poseX <= (neutralZoneNear - H)) ||
+            (poseX <  (oppZone - H) && poseX >  (neutralZoneFar + H));
+
+        boolean trenchExit =
+            !( (poseX >= (myZone - H) && poseX <= (neutralZoneNear + H)) ||
+            (poseX <  (oppZone + H) && poseX >  (neutralZoneFar - H)) );
+
+        inTrenchZones = updateWithHysteresis(
+            inTrenchZones,
+            trenchEnter,
+            trenchExit
+        );
+
+        boolean oppEnter = poseX > (oppZone + H);
+        boolean oppExit  = poseX < (oppZone - H);
+
+        inOpponentZone = updateWithHysteresis(
+            inOpponentZone,
+            oppEnter,
+            oppExit
+        );
 
         Translation2d trench1 = FlipUtil.apply(FieldConstants.LeftTrench.openingTopLeft.toTranslation2d());
         Translation2d trench2 = FlipUtil.apply(FieldConstants.LeftTrench.openingTopRight.toTranslation2d());
         Translation2d trench3 = FlipUtil.apply(FieldConstants.RightTrench.openingTopLeft.toTranslation2d());
         Translation2d trench4 = FlipUtil.apply(FieldConstants.RightTrench.openingTopRight.toTranslation2d());
 
-        hoodDangerNearTrench = (pose.getTranslation().getDistance(trench1) < Constants.TrenchDangerDistance ||
-            pose.getTranslation().getDistance(trench2) < Constants.TrenchDangerDistance ||
-            pose.getTranslation().getDistance(trench3) < Constants.TrenchDangerDistance ||
-            pose.getTranslation().getDistance(trench4) < Constants.TrenchDangerDistance
-            );
+        double D = Constants.TrenchDangerDistance;
+        double HD = 0.10;   // 10cm hysteresis on distance
+
+        boolean trenchDangerEnter =
+            pose.getTranslation().getDistance(trench1) < (D - HD) ||
+            pose.getTranslation().getDistance(trench2) < (D - HD) ||
+            pose.getTranslation().getDistance(trench3) < (D - HD) ||
+            pose.getTranslation().getDistance(trench4) < (D - HD);
+
+        boolean trenchDangerExit =
+            pose.getTranslation().getDistance(trench1) > (D + HD) &&
+            pose.getTranslation().getDistance(trench2) > (D + HD) &&
+            pose.getTranslation().getDistance(trench3) > (D + HD) &&
+            pose.getTranslation().getDistance(trench4) > (D + HD);
+
+        hoodDangerNearTrench = updateWithHysteresis(
+            hoodDangerNearTrench,
+            trenchDangerEnter,
+            trenchDangerExit
+        );
 
     }
 

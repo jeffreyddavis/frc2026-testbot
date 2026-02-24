@@ -18,6 +18,8 @@ public final class Constants
 
   public static final double YawWarningTolerance = 2;
   public static final double TrenchDangerDistance = .65;
+  public static final double ZONE_HYSTERESIS = 0.15;  // meters (~6 in)
+
   // Maximum speed of the robot in meters per second, used to limit acceleration.
 
 //  public static final class AutonConstants
