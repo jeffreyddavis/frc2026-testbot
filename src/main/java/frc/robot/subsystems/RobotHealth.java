@@ -10,6 +10,7 @@ import frc.robot.Constants;
 import frc.robot.FieldConstants;
 import frc.robot.FlipUtil;
 import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.HubTracker;
 
 
 
@@ -38,6 +39,9 @@ public class RobotHealth extends SubsystemBase  {
 
     @AutoLogOutput
     public boolean hoodDangerNearTrench = false;
+
+    @AutoLogOutput
+    public boolean inActiveShift = false;
 
     private Drivetrain m_Drivetrain;
     private QuestNaviman m_QuestNaviman;
@@ -81,6 +85,8 @@ public class RobotHealth extends SubsystemBase  {
 
         determineFieldState();
         updateZones();
+
+        inActiveShift = HubTracker.isActive();
 
         lastPose2d = newPose2d; // prep for next periodic;
     }
