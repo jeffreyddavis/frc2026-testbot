@@ -49,7 +49,7 @@ public class RobotContainer {
   public Drivetrain m_swerve = new Drivetrain();
   private final Turret m_turret = new Turret(m_swerve.pigeon, m_swerve);
   private final Hood m_hood = new Hood();
-  private final Shooter m_shooter = new Shooter(m_hood, m_turret);
+  // private final Shooter m_shooter = new Shooter(m_hood, m_turret);
   public final QuestNaviman m_QuestNaviman = new QuestNaviman(m_swerve);
   private final RobotHealth m_RobotHealth;;
   
@@ -159,7 +159,7 @@ configureBindings();
 ));
  */
 
- m_shooter.setDefaultCommand(Commands.run(() -> m_shooter.TestShot(), m_shooter));
+ // m_shooter.setDefaultCommand(Commands.run(() -> m_shooter.TestShot(), m_shooter));
 
     // Enable this to have turret lock to angle from Advantage scope.
     //m_turret.setDefaultCommand(Commands.run(() -> m_turret.updateFromDashboard(), m_turret));

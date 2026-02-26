@@ -111,10 +111,10 @@ public class RobotHealth extends SubsystemBase  {
         Pose2d pose = m_Drivetrain.getPose();
         double poseX = FlipUtil.applyX(pose.getX());
 
-        double myZone = FlipUtil.applyX(FieldConstants.LinesVertical.allianceZone);
-        double neutralZoneNear = FlipUtil.applyX(FieldConstants.LinesVertical.neutralZoneNear);
-        double neutralZoneFar = FlipUtil.applyX(FieldConstants.LinesVertical.neutralZoneFar);
-        double oppZone = FlipUtil.applyX(FieldConstants.LinesVertical.oppAllianceZone);
+        double myZone = (FieldConstants.LinesVertical.allianceZone);
+        double neutralZoneNear = (FieldConstants.LinesVertical.neutralZoneNear);
+        double neutralZoneFar = (FieldConstants.LinesVertical.neutralZoneFar);
+        double oppZone = (FieldConstants.LinesVertical.oppAllianceZone);
 
         double H = Constants.ZONE_HYSTERESIS;
 

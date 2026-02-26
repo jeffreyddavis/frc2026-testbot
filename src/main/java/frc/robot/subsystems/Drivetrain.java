@@ -322,8 +322,4 @@ Logger.recordOutput("Pose", m_PoseEstimator.getEstimatedPosition().toString());
     return fieldRelative;
   }
 
-
-
-  
-
 }
